@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Discord Embed プレビューサイト</title>
+  <style>
+    body {
+      background: #36393F;
+      color: #dcddde;
+      font-family: "Segoe UI", "Meiryo", sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 24px;
+      gap: 40px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .form-area {
+      background: #2f3136;
+      padding: 24px;
+      border-radius: 12px;
+      width: 100%;
+      box-sizing: border-box;
+      box-shadow: 0 2px 16px #0004;
+      margin-bottom: 32px;
+    }
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 12px;
+    }
+    .form-row label {
+      color: #faa61a;
+      font-size: 15px;
+      font-weight: bold;
+      min-width: 110px;
+      margin-bottom: 0;
+      margin-right: 8px;
+      white-space: nowrap;
+    }
+    .form-row input,
+    .form-row textarea {
+      border: none;
+      border-radius: 4px;
+      padding: 8px;
+      background: #232428;
+      color: #dcddde;
+      font-size: 15px;
+      resize: vertical;
+      margin-bottom: 0;
+      margin-right: 8px;
+    }
+    .form-row input[type="color"] {
+      padding: 0;
+      width: 40px;
+      height: 32px;
+      background: none;
+    }
+    .form-row textarea {
+      width: 240px;
+      min-width: 120px;
+      max-width: 380px;
+      min-height: 36px;
+      max-height: 120px;
+      margin-right: 0;
+    }
+    .form-row input[type="number"], .form-row input[type="text"] {
+      width: 180px;
+      max-width: 240px;
+      min-width: 60px;
+    }
+    .form-row input[type="checkbox"] {
+      width: auto;
+      margin-right: 2px;
+    }
+    .form-row .small-input {
+      width: 80px;
+      min-width: 40px;
+    }
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .fields-area {
+      background: #202225;
+      border-radius: 8px;
+      padding: 12px 10px 8px 10px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 1px 4px #0002;
+      border: 1px solid #232428;
+    }
+    .fields-area-title {
+      color: #faa61a;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      margin-left: 2px;
+    }
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 0;
+      padding: 7px 0;
+      border-bottom: 1px solid #232428;
+      border-radius: 0;
+      transition: background 0.18s;
+    }
+    .field-row:last-child {
+      border-bottom: none;
+    }
+    .field-row input[type="text"] {
+      width: 120px;
+      min-width: 40px;
+      max-width: 200px;
+      background: #232428;
+      border: 1px solid #383b42;
+      color: #dcddde;
+      padding: 6px 8px;
+      border-radius: 4px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .field-row input[type="text"]:focus {
+      border-color: #5865f2;
+      background: #23283a;
+      outline: none;
+    }
+    .field-row label {
+      font-size: 13px;
+      margin-right: 0;
+      min-width: 0;
+      color: #b9bbbe;
+      font-weight: normal;
+      display: flex;
+      align-items: center;
+      background: none;
+    }
+    .field-row input[type="checkbox"] {
+      accent-color: #5865f2;
+      width: 18px;
+      height: 18px;
+      margin-left: 4px;
+      margin-right: 2px;
+    }
+    .field-row input[type="checkbox"]:focus {
+      outline: 1.5px solid #5865f2;
+    }
+    .field-row input[type="text"]::placeholder {
+      color: #72767d;
+      opacity: 1;
+    }
+    .field-row:hover {
+      background: #232428;
+    }
+    .field-row input[type="text"]:hover {
+      background: #23283a;
+    }
+    .field-row input[type="checkbox"]:hover {
+      box-shadow: 0 0 2px #5865f2;
+    }
+    .field-row .remove-field-btn {
+      background: #ff5555;
+      border: none;
+      color: #fff;
+      font-size: 13px;
+      border-radius: 3px;
+      padding: 3px 8px;
+      cursor: pointer;
+      margin-left: 8px;
+      transition: background 0.2s;
+    }
+    .field-row .remove-field-btn:hover {
+      background: #ff2222;
+    }
+    .add-remove-row {
+      margin-top: 4px;
+      margin-bottom: 0;
+      gap: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .add-remove-row button {
+      background: #5865f2;
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-right: 8px;
+      transition: background 0.2s;
+    }
+    .add-remove-row button:hover {
+      background: #4752c4;
+    }
+    .add-remove-row .remove-btn {
+      background: #ff5555;
+    }
+    .add-remove-row .remove-btn:hover {
+      background: #ff2222;
+    }
+    .add-remove-row .field-count {
+      color: #b9bbbe;
+      font-size: 13px;
+      margin-left: 8px;
+      margin-right: 0;
+    }
+    .discord-message {
+      background: #2f3136;
+      border-radius: 8px;
+      padding: 20px;
+      max-width: 600px;
+      min-width: 350px;
+      margin: 0 auto 16px auto;
+      display: flex;
+      flex-direction: row;
+      box-shadow: 0 4px 20px #0007;
+    }
+    .discord-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 24px;
+      margin-right: 16px;
+      flex-shrink: 0;
+      background: #222;
+      object-fit: cover;
+    }
+    .discord-main {
+      flex: 1;
+    }
+    .discord-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 4px;
+      gap: 8px;
+    }
+    .discord-username {
+      font-weight: bold;
+      color: #fff;
+      margin-right: 8px;
+    }
+    .discord-bot {
+      background: #5865f2;
+      color: #fff;
+      font-size: 12px;
+      padding: 0 4px;
+      border-radius: 3px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .discord-time {
+      color: #72767d;
+      font-size: 12px;
+    }
+    .discord-content {
+      margin-bottom: 8px;
+      white-space: pre-line;
+    }
+    .discord-embed {
+      display: flex;
+      border-left: 4px solid #faa61a;
+      background: #232428;
+      border-radius: 4px;
+      padding: 12px;
+      margin-top: 4px;
+      position: relative;
+    }
+    .discord-embed-main {
+      flex: 1;
+    }
+    .discord-embed-author {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .discord-embed-author img {
+      width: 20px; height: 20px; border-radius: 50%; margin-right: 6px;
+    }
+    .discord-embed-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .discord-embed-title a {
+      color: #00b0f4;
+      text-decoration: none;
+    }
+    .discord-embed-description {
+      margin-bottom: 8px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+    .discord-embed-description strong {
+      font-weight: bold;
+      color: #fff;
+    }
+    .discord-embed-description a {
+      color: #00b0f4;
+      text-decoration: underline;
+    }
+    .discord-embed-fields {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .discord-embed-field {
+      background: #2f3136;
+      border-radius: 4px;
+      padding: 8px;
+      margin-bottom: 4px;
+      min-width: 120px;
+      flex: 1 1 42%;
+    }
+    .discord-embed-field.full {
+      flex-basis: 100%;
+    }
+    .discord-embed-field-name {
+      font-weight: bold;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+    .discord-embed-field-value {
+      font-size: 13px;
+      word-break: break-word;
+    }
+    .discord-embed-field-value a {
+      color: #00b0f4;
+      text-decoration: underline;
+    }
+    .discord-embed-thumb {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-left: 12px;
+      flex-shrink: 0;
+      background: #222;
+    }
+    .discord-embed-image {
+      width: 256px;
+      border-radius: 6px;
+      margin-top: 8px;
+      margin-bottom: 0;
+      max-width: 100%;
+      display: block;
+      background: #222;
+      object-fit: cover;
+    }
+    .discord-embed-footer {
+      display: flex;
+      align-items: center;
+      color: #72767d;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    .discord-embed-footer img {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+    .json-area {
+      background: #232428;
+      border-radius: 8px;
+      padding: 18px 16px;
+      margin: 32px 0 0 0;
+      font-family: "Fira Mono", "Consolas", "Menlo", "Monaco", "monospace";
+      color: #d0d1d5;
+      font-size: 15px;
+      line-height: 1.7;
+      box-shadow: 0 2px 8px #0004;
+      word-break: break-word;
+      max-width: 600px;
+      overflow-x: auto;
+      border: 1px solid #34363a;
+    }
+    .json-area-title {
+      color: #faa61a;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .json-copy-btn {
+      background: #5865f2;
+      color: #fff;
+      border: none;
+      padding: 5px 14px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-left: 12px;
+      transition: background 0.15s;
+    }
+    .json-copy-btn:hover {
+      background: #4752c4;
+    }
+    .datetime-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .datetime-row input[type="date"],
+    .datetime-row input[type="time"] {
+      width: auto;
+      min-width: 0;
+      max-width: 120px;
+      padding: 5px 7px;
+      font-size: 15px;
+      background: #232428;
+      color: #dcddde;
+      border: 1px solid #383b42;
+      border-radius: 4px;
+    }
+    .datetime-row label {
+      color: #faa61a;
+      font-size: 15px;
+      font-weight: bold;
+      min-width: 0;
+      margin-bottom: 0;
+      margin-right: 4px;
+      white-space: nowrap;
+    }
+    .iso-input {
+      width: 210px;
+      padding: 8px;
+      background: #232428;
+      color: #dcddde;
+      border: 1px solid #383b42;
+      border-radius: 4px;
+      font-size: 15px;
+      transition: border-color 0.15s, background 0.15s;
+      margin-right: 0;
+    }
+    .iso-input:focus {
+      border-color: #5865f2;
+      background: #23283a;
+      outline: none;
+    }
+    .iso-input::placeholder {
+      color: #72767d;
+      opacity: 1;
+    }
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .form-area, .discord-message, .json-area {
+        min-width: 0;
+        width: 98vw;
+        max-width: 98vw;
+      }
+      .form-row, .field-row, .datetime-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+      }
+      .form-row label, .field-row label, .datetime-row label {
+        margin-bottom: 3px;
+      }
+      .form-row input, .form-row textarea, .field-row input, .datetime-row input {
+        width: 98vw !important;
+        max-width: 98vw !important;
+      }
+      .iso-input {
+        width: 98vw !important;
+        max-width: 98vw !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <form class="form-area" id="embedForm" onsubmit="return false;">
+      <h2 style="margin-top:0;">Discord Embed 作成フォーム</h2>
+      <div class="form-row">
+        <label>送り主の名前</label>
+        <input type="text" id="botName" value="EmbedテストBot">
+        <label class="small-input">アイコンURL</label>
+        <input type="text" id="avatarUrl" value="https://cdn.discordapp.com/embed/avatars/0.png">
+      </div>
+      <div class="form-row">
+        <label>メッセージ本文</label>
+        <textarea id="msgContent" rows="2" placeholder="Webhook経由の通常メッセージ"></textarea>
+      </div>
+      <hr style="margin:16px 0 16px 0;border:1px solid #222;">
+      <div class="form-row">
+        <label>Embedタイトル</label>
+        <input type="text" id="embedTitle" value="Embedのタイトル">
+        <label class="small-input">タイトルURL</label>
+        <input type="text" id="embedUrl" value="https://discord.com/">
+      </div>
+      <div class="form-row">
+        <label>Embed説明</label>
+        <textarea id="embedDescription" rows="2">これは説明文です。
+複数行にも対応しています。
+**強調**や[リンク](https://discord.com/)も利用可能。</textarea>
+      </div>
+      <div class="form-row color-row">
+        <label>Embedカラー</label>
+        <input type="color" id="embedColorPicker" value="#ffa600" title="カラーパレット">
+        <input type="number" id="embedColor" value="16753920" min="0" max="16777215" step="1" title="10進数カラー">
+        <input type="text" id="embedColorHex" value="#ffa600" maxlength="7" style="width:70px;" title="16進数カラー">
+      </div>
+      <div class="datetime-row">
+        <label>Embed日時</label>
+        <input type="date" id="embedDate">
+        <input type="time" id="embedTime" step="1">
+        <input type="text" id="embedTimestamp" class="iso-input" placeholder="ISO8601形式" title="ISO8601形式で編集も可能">
+      </div>
+      <div class="form-row">
+        <label class="small-input">サムネイル</label>
+        <input type="text" id="embedThumbnail" value="https://cdn.discordapp.com/embed/avatars/3.png">
+        <label class="small-input">メイン画像</label>
+        <input type="text" id="embedImage" value="https://cdn.discordapp.com/embed/avatars/2.png">
+      </div>
+      <div class="form-row">
+        <label>著者名</label>
+        <input type="text" id="embedAuthorName" value="著者名">
+        <label class="small-input">著者URL</label>
+        <input type="text" id="embedAuthorUrl" value="https://github.com/">
+        <label class="small-input">著者アイコン</label>
+        <input type="text" id="embedAuthorIcon" value="https://cdn.discordapp.com/embed/avatars/4.png">
+      </div>
+      <div class="form-row">
+        <label>フッター文</label>
+        <input type="text" id="embedFooterText" value="フッターのテキスト">
+        <label class="small-input">フッターアイコン</label>
+        <input type="text" id="embedFooterIcon" value="https://cdn.discordapp.com/embed/avatars/1.png">
+      </div>
+      <div class="fields-area-title">フィールド</div>
+      <div class="fields-area" id="fieldsArea">
+        <!-- 動的にフィールドが挿入される -->
+      </div>
+      <div class="add-remove-row">
+        <button type="button" onclick="addField()">フィールド追加</button>
+        <button type="button" class="remove-btn" onclick="removeField()">フィールド削除</button>
+        <span class="field-count">現在: <span id="fieldCountSpan">3</span> 個</span>
+      </div>
+    </form>
+    <div>
+      <h2 style="text-align:center;">プレビュー</h2>
+      <div id="preview"></div>
+      <div class="json-area">
+        <div class="json-area-title">
+          Embed JSON
+          <button class="json-copy-btn" type="button" onclick="copyJson()">コピー</button>
+        </div>
+        <pre id="jsonOutput"></pre>
+      </div>
+    </div>
+  </div>
+<script>
+const fieldsArea = document.getElementById('fieldsArea');
+const fieldCountSpan = document.getElementById('fieldCountSpan');
+let fieldCount = 3;
+function makeField(i, name='', value='', inline=false) {
+  return `
+  <div class="field-row" data-index="${i}">
+    <input type="text" placeholder="フィールド名" value="${name.replace(/"/g,'&quot;')}" id="fieldName${i}">
+    <input type="text" placeholder="値" value="${value.replace(/"/g,'&quot;')}" id="fieldValue${i}">
+    <label>
+      <input type="checkbox" id="fieldInline${i}" ${inline?'checked':''}> インライン
+    </label>
+    <button type="button" class="remove-field-btn" onclick="removeFieldByIndex(${i})" title="このフィールドを削除">✖</button>
+  </div>`;
+}
+function addField() {
+  fieldCount++;
+  fieldsArea.insertAdjacentHTML('beforeend', makeField(fieldCount));
+  fieldCountSpan.textContent = fieldCount;
+  updatePreview();
+}
+function removeField() {
+  if(fieldCount>0){
+    fieldsArea.removeChild(fieldsArea.lastElementChild);
+    fieldCount--;
+    fieldCountSpan.textContent = fieldCount;
+    updatePreview();
+  }
+}
+function removeFieldByIndex(idx) {
+  const row = fieldsArea.querySelector('.field-row[data-index="'+idx+'"]');
+  if(row){
+    row.remove();
+    fieldCount--;
+    fieldCountSpan.textContent = fieldCount;
+    updatePreview();
+  }
+}
+function initFields() {
+  fieldsArea.innerHTML = 
+    makeField(1, 'フィールド1', 'フィールド1の値', true) +
+    makeField(2, 'フィールド2', 'フィールド2の値', true) +
+    makeField(3, 'フィールド3', 'フィールド3の値（インラインでない）', false);
+  fieldCountSpan.textContent = 3;
+}
+initFields();
+document.querySelectorAll('.form-area input, .form-area textarea').forEach(el=>{
+  el.addEventListener('input', updatePreview);
+});
+fieldsArea.addEventListener('input', updatePreview);
+
+// --- Embedカラー連動ロジック ---
+const colorPicker = document.getElementById('embedColorPicker');
+const colorNum = document.getElementById('embedColor');
+const colorHex = document.getElementById('embedColorHex');
+
+// 10進→16進/カラーピッカー 連動
+colorNum.addEventListener('input',()=>{
+  let val = parseInt(colorNum.value,10);
+  if(isNaN(val) || val<0) val=0;
+  if(val>16777215) val=16777215;
+  let hex = '#' + val.toString(16).padStart(6,'0');
+  colorHex.value = hex;
+  colorPicker.value = hex;
+  updatePreview();
+});
+// 16進→10進/カラーピッカー 連動
+colorHex.addEventListener('input',()=>{
+  let hex = colorHex.value;
+  if(!/^#[0-9a-fA-F]{6}$/.test(hex)) return;
+  let num = parseInt(hex.slice(1),16);
+  colorNum.value = num;
+  colorPicker.value = hex;
+  updatePreview();
+});
+// カラーピッカー→10進/16進 連動
+colorPicker.addEventListener('input',()=>{
+  let hex = colorPicker.value;
+  colorHex.value = hex;
+  colorNum.value = parseInt(hex.slice(1),16);
+  updatePreview();
+});
+
+// --- Embed日時カレンダー・時刻選択連動 ---
+const embedDate = document.getElementById('embedDate');
+const embedTime = document.getElementById('embedTime');
+const embedTimestamp = document.getElementById('embedTimestamp');
+
+// 日付・時刻 → ISO8601
+function dateTimeToISO() {
+  if (!embedDate.value && !embedTime.value) return '';
+  let date = embedDate.value ? embedDate.value : '1970-01-01';
+  let time = embedTime.value ? embedTime.value : '00:00:00';
+  // time may be "HH:MM" or "HH:MM:SS"
+  if (time.length === 5) time += ':00';
+  // Assume local time and convert to UTC
+  let dtLocal = new Date(date + 'T' + time);
+  if (isNaN(dtLocal)) return '';
+  return dtLocal.toISOString();
+}
+// ISO8601 → 日付・時刻
+function isoToDateTime(iso) {
+  if (!iso) return {date: '', time: ''};
+  try {
+    let dt = new Date(iso);
+    if (isNaN(dt)) return {date: '', time: ''};
+    // Get date in YYYY-MM-DD, time in HH:MM:SS (local time)
+    let local = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000);
+    let y = local.getFullYear();
+    let m = (local.getMonth()+1).toString().padStart(2,'0');
+    let d = local.getDate().toString().padStart(2,'0');
+    let date = `${y}-${m}-${d}`;
+    let hh = local.getHours().toString().padStart(2,'0');
+    let mm = local.getMinutes().toString().padStart(2,'0');
+    let ss = local.getSeconds().toString().padStart(2,'0');
+    let time = `${hh}:${mm}:${ss}`;
+    return {date, time};
+  } catch { return {date: '', time: ''}; }
+}
+
+// 日付・時刻入力 → テキスト
+embedDate.addEventListener('input', ()=>{
+  embedTimestamp.value = dateTimeToISO();
+  updatePreview();
+});
+embedTime.addEventListener('input', ()=>{
+  embedTimestamp.value = dateTimeToISO();
+  updatePreview();
+});
+// テキスト → 日付・時刻
+embedTimestamp.addEventListener('input', ()=>{
+  const {date, time} = isoToDateTime(embedTimestamp.value);
+  embedDate.value = date || '';
+  embedTime.value = time || '';
+  updatePreview();
+});
+
+// 初期値セット
+(function setInitialDateTime(){
+  // 既定値
+  const def = embedTimestamp.value || "2025-05-31T01:49:27Z";
+  if(def){
+    const {date, time} = isoToDateTime(def);
+    if(date) embedDate.value = date;
+    if(time) embedTime.value = time;
+    embedTimestamp.value = def;
+  }
+})();
+
+function parseMarkdown(text) {
+  // 簡易的な太字・リンク変換
+  let html = text
+    .replace(/</g, '&lt;')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+    .replace(/\n/g, '<br>');
+  return html;
+}
+
+// JSON生成関数
+function buildEmbedJson() {
+  const username = document.getElementById('botName').value || undefined;
+  const avatar_url = document.getElementById('avatarUrl').value || undefined;
+  const content = document.getElementById('msgContent').value || undefined;
+  const title = document.getElementById('embedTitle').value || undefined;
+  const url = document.getElementById('embedUrl').value || undefined;
+  const description = document.getElementById('embedDescription').value || undefined;
+  const color = Number(document.getElementById('embedColor').value) || undefined;
+  const timestamp = document.getElementById('embedTimestamp').value || undefined;
+  const thumbnail_url = document.getElementById('embedThumbnail').value || undefined;
+  const image_url = document.getElementById('embedImage').value || undefined;
+  const author_name = document.getElementById('embedAuthorName').value || undefined;
+  const author_url = document.getElementById('embedAuthorUrl').value || undefined;
+  const author_icon_url = document.getElementById('embedAuthorIcon').value || undefined;
+  const footer_text = document.getElementById('embedFooterText').value || undefined;
+  const footer_icon_url = document.getElementById('embedFooterIcon').value || undefined;
+
+  let fields = [];
+  fieldsArea.querySelectorAll('.field-row').forEach((row, idx)=>{
+    const i = row.getAttribute('data-index');
+    const name = document.getElementById('fieldName'+i)?.value;
+    const value = document.getElementById('fieldValue'+i)?.value;
+    const inline = document.getElementById('fieldInline'+i)?.checked;
+    if(name && value) fields.push({name, value, inline});
+  });
+
+  let embed = {};
+  if(title) embed.title = title;
+  if(description) embed.description = description;
+  if(url) embed.url = url;
+  if(typeof color === "number" && !isNaN(color)) embed.color = color;
+  if(timestamp) embed.timestamp = timestamp;
+  if(fields.length > 0) embed.fields = fields;
+  if(thumbnail_url) embed.thumbnail = { url: thumbnail_url };
+  if(image_url) embed.image = { url: image_url };
+  if(author_name || author_url || author_icon_url) {
+    embed.author = {};
+    if(author_name) embed.author.name = author_name;
+    if(author_url) embed.author.url = author_url;
+    if(author_icon_url) embed.author.icon_url = author_icon_url;
+  }
+  if(footer_text || footer_icon_url) {
+    embed.footer = {};
+    if(footer_text) embed.footer.text = footer_text;
+    if(footer_icon_url) embed.footer.icon_url = footer_icon_url;
+  }
+
+  const out = {};
+  if(content) out.content = content;
+  if(username) out.username = username;
+  if(avatar_url) out.avatar_url = avatar_url;
+  out.tts = false;
+  out.embeds = [embed];
+  return out;
+}
+
+function copyJson() {
+  const out = buildEmbedJson();
+  const text = JSON.stringify(out, null, 2);
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = document.querySelector('.json-copy-btn');
+    btn.textContent = "コピーしました";
+    setTimeout(()=>{ btn.textContent = "コピー"; }, 1200);
+  });
+}
+
+function updatePreview() {
+  // 値取得
+  const botName = document.getElementById('botName').value || 'EmbedテストBot';
+  const avatarUrl = document.getElementById('avatarUrl').value || 'https://cdn.discordapp.com/embed/avatars/0.png';
+  const msgContent = document.getElementById('msgContent').value || '';
+  const embedTitle = document.getElementById('embedTitle').value;
+  const embedUrl = document.getElementById('embedUrl').value;
+  const embedDescription = document.getElementById('embedDescription').value;
+  const embedColor = colorNum.value;
+  const embedTimestamp = document.getElementById('embedTimestamp').value;
+  const embedThumbnail = document.getElementById('embedThumbnail').value;
+  const embedImage = document.getElementById('embedImage').value;
+  const embedAuthorName = document.getElementById('embedAuthorName').value;
+  const embedAuthorUrl = document.getElementById('embedAuthorUrl').value;
+  const embedAuthorIcon = document.getElementById('embedAuthorIcon').value;
+  const embedFooterText = document.getElementById('embedFooterText').value;
+  const embedFooterIcon = document.getElementById('embedFooterIcon').value;
+
+  let fields = [];
+  fieldsArea.querySelectorAll('.field-row').forEach((row, idx)=>{
+    const i = row.getAttribute('data-index');
+    const name = document.getElementById('fieldName'+i)?.value;
+    const value = document.getElementById('fieldValue'+i)?.value;
+    const inline = document.getElementById('fieldInline'+i)?.checked;
+    if(name && value) fields.push({name, value, inline});
+  });
+
+  // 時刻
+  let timeString = '';
+  if(embedTimestamp) {
+    try {
+      const dt = new Date(embedTimestamp);
+      if(!isNaN(dt)) {
+        const hh = dt.getHours().toString().padStart(2,'0');
+        const mm = dt.getMinutes().toString().padStart(2,'0');
+        timeString = `・${dt.getFullYear()}-${(dt.getMonth()+1)}-${dt.getDate()} ${hh}:${mm}`;
+      }
+    } catch{}
+  }
+
+  // プレビューHTML
+  let html = `
+  <div class="discord-message">
+    <img class="discord-avatar" src="${avatarUrl}" alt="${botName}">
+    <div class="discord-main">
+      <div class="discord-header">
+        <span class="discord-username">${botName}</span>
+        <span class="discord-bot">アプリ</span>
+        <span class="discord-time">今</span>
+      </div>
+      <div class="discord-content">${msgContent?parseMarkdown(msgContent):''}</div>
+      <div class="discord-embed" style="border-left-color: #${(Number(embedColor).toString(16).padStart(6,'0'))};">
+        <div class="discord-embed-main">
+          ${(embedAuthorName||embedAuthorIcon||embedAuthorUrl) ? `
+          <div class="discord-embed-author">
+            ${embedAuthorIcon?`<img src="${embedAuthorIcon}" alt="${embedAuthorName||''}">`:''}
+            ${embedAuthorUrl?`<a href="${embedAuthorUrl}" target="_blank" style="color:#00b0f4;">${embedAuthorName||''}</a>`:embedAuthorName||''}
+          </div>`:''}
+          ${embedTitle?`
+          <div class="discord-embed-title">
+            ${embedUrl?`<a href="${embedUrl}" target="_blank" style="color:#00b0f4;">${embedTitle}</a>`:embedTitle}
+          </div>`:''}
+          ${embedDescription?`
+          <div class="discord-embed-description">${parseMarkdown(embedDescription)}</div>
+          `:''}
+          ${fields.length>0?`
+          <div class="discord-embed-fields">
+            ${fields.map(f=>`
+              <div class="discord-embed-field${f.inline?'':' full'}">
+                <div class="discord-embed-field-name">${f.name}</div>
+                <div class="discord-embed-field-value">${parseMarkdown(f.value)}</div>
+              </div>
+            `).join('')}
+          </div>
+          `:''}
+          ${embedImage?`
+          <img class="discord-embed-image" src="${embedImage}" alt="">
+          `:''}
+          ${(embedFooterText||embedFooterIcon||embedTimestamp)?`
+          <div class="discord-embed-footer">
+            ${embedFooterIcon?`<img src="${embedFooterIcon}" alt="footer">`:''}
+            <span>${embedFooterText||''}${timeString}</span>
+          </div>
+          `:''}
+        </div>
+        ${embedThumbnail?`<img class="discord-embed-thumb" src="${embedThumbnail}" alt="">`:''}
+      </div>
+    </div>
+  </div>
+  `;
+  document.getElementById('preview').innerHTML = html;
+
+  // JSON出力
+  const json = buildEmbedJson();
+  document.getElementById('jsonOutput').textContent = JSON.stringify(json, null, 2);
+}
+updatePreview();
+</script>
+</body>
+</html>
